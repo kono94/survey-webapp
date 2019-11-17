@@ -1,31 +1,45 @@
 <?php
 require 'SurveyData.php';
 
+$surveyData = new SurveyData();
+# At least one answers has to be posted
+if (isset($_POST['survey_id'])){
+    if(sizeof($_POST) < 1){
+        echo "You must select at least one answer";
+        exit;
+    }
+    if($surveyData->saveSurveyResults($_POST)){
+        echo "Umfrage erfolgreich abgeschlossen";
+    }else{
+        echo "An error occured";
+    }
+    exit;
+}
+
 if (!isset($_GET['id']) || empty($_GET['id'])) {
     echo "You did not pass in an ID.";
     exit;
 }
-$surveyData = new SurveyData();
 $survey = $surveyData->getSingleSurvey($_GET['id']);
 if ($survey === false) {
     echo "Survey not found!";
     exit;
 }
-
 echo "<h3>" .$survey->title. " (ID: " .$survey->id. ")</h3>";
 echo "<p>";
 echo nl2br($survey->description);
 echo "</p>";
-echo "<form action='/action_page.php'>";
+echo "<form action='survey.php' method='POST'>";
 echo "<h4> Questions: </h4>";
 foreach ($survey->questions as $question) {
    echo "<div>";
    echo "<p>".$question->title."</p>";
    foreach($question->answers as $answer){
-       echo "<input type='radio' name='".$question->id." value='".$answer->id."'>".$answer->title."<br>";
+       echo "<input type='radio' name='".$question->id."' value='".$answer->questionAnswerOptionID."'>".$answer->title."<br>";
    }
    echo "</div>";
 }
+echo "<input type='hidden' name='survey_id' value='".$survey->id."'/>";
 echo "<input type='submit' value='Absenden'>
       </form>";
 

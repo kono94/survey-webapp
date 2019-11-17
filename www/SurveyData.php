@@ -2,6 +2,9 @@
 require 'model/Question.php';
 require 'model/Answer.php';
 require 'model/Survey.php';
+ini_set('display_startup_errors', 1);
+ini_set('display_errors', 1);
+error_reporting(-1);
 class SurveyData
 {
     protected $connection;
@@ -33,6 +36,7 @@ class SurveyData
         $query = $this->connection->prepare(" 
         SELECT a.title AS answer_title, a.id AS answer_id, 
               q.id AS question_id, q.title AS question_title, q.question_type_id AS question_type,
+              qao.id AS question_answer_option_id,
               s.id AS survey_id, s.title AS survey_title, s.start_date, s.end_date, s.category_id,
               s.description_text, c.name AS category_name
         FROM answer AS a
@@ -67,8 +71,31 @@ class SurveyData
             if (!$survey->questions[$questionID]) {
                 $survey->addQuestion(new Question($questionID, $row['question_title'], $row['question_type']));
             }
-            $survey->questions[$questionID]->addAnswer(new Answer($row['answer_id'], $row['answer_title']));
+            $survey->questions[$questionID]->addAnswer(new Answer($row['answer_id'], $row['answer_title'], $row['question_answer_option_id']));
         }
         return $survey;
+    }
+
+    public function saveSurveyResults($formData){
+        $query = $this->connection->prepare("
+        INSERT INTO survey_result 
+        (survey_id, question_answer_option_id)
+        VALUES
+        (:s_id, :qao_id)
+        ");
+        
+        $surveyID = $formData['survey_id'];
+        foreach(array_keys($formData) as $questionID){
+            if($questionID === 'survey_id'){
+                continue;
+            }
+            
+            $params = [':s_id' => $surveyID,
+                       ':qao_id' => $formData[$questionID]];
+
+            $query->execute($params);
+            if(!$query) return false;
+        }
+        return true;
     }
 }
