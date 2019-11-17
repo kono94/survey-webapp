@@ -68,7 +68,7 @@ class SurveyData
         $survey = new Survey($rows[0]['survey_id'], $rows[0]['survey_title'], $rows[0]['description_text'],$rows[0]['start_date'],$rows[0]['end_date'], $rows[0]['category_id'], $rows[0]['category_name']);
         foreach ($rows as $row) {
             $questionID = $row['question_id'];
-            if (!$survey->questions[$questionID]) {
+            if (!array_key_exists($questionID, $survey->questions)) {
                 $survey->addQuestion(new Question($questionID, $row['question_title'], $row['question_type']));
             }
             $survey->questions[$questionID]->addAnswer(new Answer($row['answer_id'], $row['answer_title'], $row['question_answer_option_id']));
