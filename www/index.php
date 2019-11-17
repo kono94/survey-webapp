@@ -6,17 +6,15 @@
 <?php
 require 'SurveyData.php';
 
-$data = new SurveyData();
-$data->connect();
-$topics = $data->getAllSurveys();
-foreach ($topics as $topic) {
-   
-    echo "<h3>" .$topic['title']. " (ID: " .$topic['id']. ")</h3>";
+$surveyData = new SurveyData();
+$surveys = $surveyData->getAllSurveys();
+
+foreach ($surveys as $survey) {
+    echo "<h3>" .$survey->title. " (ID: " .$survey->id. ")</h3>";
     echo "<p>";
-    echo nl2br($topic['description_text']);
+    echo nl2br($survey->description);
     echo "</p>";
 }
-echo "kekW"
 ?>
 </body>
 </html>
