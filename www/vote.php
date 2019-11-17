@@ -2,8 +2,6 @@
 require 'controller/SurveyData.php';
 require 'template/TemplateFactory.php';
 
-TemplateFactory::createDefaultHeader("kek");
-
 $surveyData = new SurveyData();
 # At least one answers has to be posted
 if (isset($_POST['survey_id'])) {
@@ -12,7 +10,7 @@ if (isset($_POST['survey_id'])) {
         exit;
     }
     if ($surveyData->saveSurveyResults($_POST)) {
-        echo "Umfrage erfolgreich abgeschlossen";
+        header('Location: result.php?id='.$_POST['survey_id'].'&msg=Umfrage erfolgreich abgeschlossen');
     } else {
         echo "An error occured";
     }
@@ -27,7 +25,10 @@ $survey = $surveyData->getSingleSurvey($_GET['id']);
 if ($survey === false) {
     echo "Survey not found!";
     exit;
-} ?>
+}
+TemplateFactory::createDefaultHeader("kek");
+?>
+
 
 <h3>
     <?= $survey->title ?> (ID: <?= $survey->id ?>)
@@ -44,8 +45,8 @@ if ($survey === false) {
             <div>
                 <? foreach ($question->answers as $answer) : ?>
                     <div>
-                        <input type='radio' name='<?= $question->id ?>' value='<?= $answer->questionAnswerOptionID ?>'>
-                        <?= $answer->title ?>
+                        <input id="<?=$answer->questionAnswerOptionID?>" type='radio' name='<?= $question->id ?>' value='<?= $answer->questionAnswerOptionID ?>'>
+                        <label for="<?=$answer->questionAnswerOptionID?>"><?= $answer->title ?></label>
                     </div>
                 <? endforeach ?>
             </div>

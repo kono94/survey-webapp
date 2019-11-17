@@ -98,4 +98,53 @@ class SurveyData
         }
         return true;
     }
+
+    /*
+        Returns a special vote map:
+        {
+            "questionTotalVotes": {
+                <<question->id>>: <<total number of votes for this question>>,
+                <<question->id>>: <<total number of votes for this question>>,
+                <<question->id>>: <<total number of votes for this question>>,
+                ...
+            },
+            "votes": {
+                <<question_answer_option_id>>: <<number of votes for this specific answer>>,
+                <<question_answer_option_id>>: <<number of votes for this specific answer>>,
+                <<question_answer_option_id>>: <<number of votes for this specific answer>>,
+            }
+        }
+
+        The model of "Answer" has its unique "question_answer_option_id" as field, so
+        it is easy to use this map while iterating through all questions and related answers
+        in the view.
+
+    */
+    public function getAnswerVotes($survey){
+        $query = $this->connection->prepare("
+            SELECT question_answer_option_id AS qao, COUNT(*) AS votes FROM survey_result
+            WHERE survey_id = :s_id
+            GROUP BY question_answer_option_id
+        ");
+
+        $params = [':s_id' => $survey->id];
+        $query->execute($params);
+        $voteMap = array();
+        $voteMap["votes"] = array();
+        $voteMap["questionTotalVotes"] = array();
+        foreach($query->fetchAll() as $row){
+            $voteMap["votes"][$row['qao']] = $row['votes'];
+        }
+
+        foreach($survey->questions as $question){
+            $voteMap['questionTotalVotes'][$question->id] = 0;
+            foreach($question->answers as $answer){
+                if(!array_key_exists($answer->questionAnswerOptionID, $voteMap['votes'])){
+                    $voteMap['votes'][$answer->questionAnswerOptionID] = 0;
+                }
+                $voteMap['questionTotalVotes'][$question->id] += $voteMap['votes'][$answer->questionAnswerOptionID];
+            }
+        }
+        return $voteMap;
+    }
 }
