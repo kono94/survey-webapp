@@ -17,7 +17,7 @@ if ($survey === false) {
 TemplateFactory::createDefaultHeader("Result");
 
     if(isset($_GET['msg'])){
-        echo "<h2 style='color: green'>".$_GET['msg']."</h2>";
+        echo "<div class='alert alert-success' style='width:500px'>".$_GET['msg']."</div>";
     }
     ?>
 <h3>
@@ -30,10 +30,12 @@ TemplateFactory::createDefaultHeader("Result");
 
     <?
     $voteMap = $surveyData->getAnswerVotes($survey);
-    foreach ($survey->questions as $question) : 
+    $index = 0;
+    foreach ($survey->questions as $question) :
+        $index++; 
         $totalVotes = $voteMap["questionTotalVotes"][$question->id]?>
-        <div>
-            <p><?= $question->title ?> Total number of votes: <?=$totalVotes?></p>
+        <div class="question">
+            <h5><?= $index.". ".$question->title ?> (<?=$totalVotes?> insgesamt)</h5>
             <div>
                 <? foreach ($question->answers as $answer) : 
                     $answerVotes = $voteMap["votes"][$answer->questionAnswerOptionID]?>
@@ -41,6 +43,7 @@ TemplateFactory::createDefaultHeader("Result");
                         <?= $answer->title ?> (<?=$answerVotes?> votes)
                         <div class="result-bar" style= "width:<?=@round(($answerVotes/$totalVotes)*100)?>%">
                          <?=@round(($answerVotes/$totalVotes)*100)?>%
+                </div>
                     </div>
                 <? endforeach ?>
             </div>

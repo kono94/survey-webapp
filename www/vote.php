@@ -26,7 +26,7 @@ if ($survey === false) {
     echo "Survey not found!";
     exit;
 }
-TemplateFactory::createDefaultHeader("kek");
+TemplateFactory::createDefaultHeader("Vote");
 ?>
 
 
@@ -37,12 +37,13 @@ TemplateFactory::createDefaultHeader("kek");
     <?= $survey->description ?> 
 </p>
 <form action='vote.php' method='POST'>
-    <h4> Questions: </h4>
-
-    <? foreach ($survey->questions as $question) : ?>
+    <? 
+    $index = 0;
+    foreach ($survey->questions as $question) : 
+        $index++;?>
         <div>
-            <p><?= $question->title ?></p>
-            <div>
+            <h5><?= $index.". ".$question->title ?></h5>
+            <div class="question">
                 <? foreach ($question->answers as $answer) : ?>
                     <div>
                         <input id="<?=$answer->questionAnswerOptionID?>" type='radio' name='<?= $question->id ?>' value='<?= $answer->questionAnswerOptionID ?>'>
@@ -54,7 +55,7 @@ TemplateFactory::createDefaultHeader("kek");
     <? endforeach ?>
 
     <input type='hidden' name='survey_id' value='<?= $survey->id ?>' />
-    <input type='submit' value='Absenden'>
+    <input type='submit' class="btn btn-primary" value='Absenden'>
 </form>
 
 <?
