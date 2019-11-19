@@ -31,11 +31,10 @@ $survey = $res->fetch_assoc();
 <h3>
     <?= $survey['title'] ?> (ID: <?= $survey['id'] ?>)
 </h3>
-<p> 
+<span>Beschreibung:</span>
+<p style="margin-bottom:40px"> 
     <?= $survey['description_text'] ?> 
 </p>
-
-
 <? 
 
     /* Hole alle Fragen, die zu dieser Umfrage gehören mit dem jeweiligen question_typ,
@@ -51,21 +50,27 @@ $survey = $res->fetch_assoc();
         $sql = "SELECT count(*) AS totalVotes FROM survey_result AS sr LEFT JOIN question_answer_option AS qao ON sr.question_answer_option_id = qao.id WHERE sr.survey_id = ".$survey['id']." AND qao.question_id = ".$question['id'];
         /* fetch_assoc() returnt ein Array, auf das man direkt zugreifen kann, das spart unnötige Variablen */
         $totalVotes = mysqli_query($mysqli, $sql)->fetch_assoc()['totalVotes'];
+        /* Verhindere, dass später durch 0 geteilt wird */
+        if($totalVotes == 0){
+            $totalVotes = 1;
+        }
     ?>
         <div class="question">
             <h5><?= $index.". ".$question['title'] ?> (<?=$totalVotes?> insgesamt)</h5>
             <div>
                 <? 
-                /* Hole alle Antworten mit der jeweiligen Anzahl der Stimmen, die diese bekommen hat.
-                Dazu Gruppieren wir alle Zeilen nach der answer.id. Das count(*) in dem Selectpart
-                bezieht sich automatisch auf die jeweiligen Gruppen, die gebildet worden sind */
-                $sql = "SELECT count(*) AS answerVotes, a.title AS totalVotes FROM survey_result AS sr LEFT JOIN question_answer_option AS qao ON sr.question_answer_option_id = qao.id LEFT JOIN answer AS a ON qao.answer_id = a.id WHERE sr.survey_id = ".$survey['id']." AND qao.question_id = ".$question['id']." GROUP BY a.id";
-                $res = mysqli_query($mysqli, $sql);
+                /* Hole alle Antwortmöglichkeiten, die zu der Frage gehören */
+                $sql = "SELECT a.id, a.title FROM question_answer_option AS qao INNER JOIN answer AS a ON a.id = qao.answer_id WHERE qao.question_id = ".$question['id'];
+                $answerResult = mysqli_query($mysqli, $sql);
                 /* Gehe durch alle Antworten und zeige diese an. Wir haben die Gesamtanzahl der Stimmen für
                 diese Frage und für jede einzelne Antwort, somit können wir den Anteil jeder Antwortmöglichkeit berechnen.
                 Die Prozentanzahl kann man zudem als Wert für "width" verwenden, um eine result bar anzeigen zu lassen */
-                while ($answer = mysqli_fetch_assoc($res)): 
-                    $answerVotes = $answer['answerVotes'];?>
+                while ($answer = mysqli_fetch_assoc($answerResult)):
+                    /* Gib die Anzahl an votes für die jeweilige Antwortmöglichkeit zurück */
+                    $sql = "SELECT COUNT(*) AS answerVotes FROM survey_result AS sr LEFT JOIN  question_answer_option AS qao ON sr.question_answer_option_id = qao.id WHERE qao.answer_id = ".$answer['id'];
+                    $voteResult = mysqli_query($mysqli, $sql);
+                    $answerVotes = mysqli_fetch_assoc($voteResult)['answerVotes'];
+                    ?>
                     <div style="width:500px">
                         <?= $answer['title'] ?> (<?=$answerVotes?> votes)
                         <div class="result-bar" style= "width:<?=@round(($answerVotes/$totalVotes)*100)?>%">

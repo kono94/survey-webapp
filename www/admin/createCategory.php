@@ -26,8 +26,7 @@ if (isset($_POST['category_name']) && !empty($_POST['category_name'])) {
     exit;
 }
 ?>
-
-    <form action='createCategory.php' method='POST'>
+    <form style="text-align: center; margin-top: 80px" action='createCategory.php' method='POST'>
         <input type="text" name='category_name' placeholder="Name der Kategorie" />
         <input type='submit' class="btn btn-primary" value='Erstellen'>
     </form>  

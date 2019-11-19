@@ -23,9 +23,9 @@ if (!isset($_GET['id']) || empty($_GET['id'])) {
     /* Das "i" steht für Integer, einer Ganzzahl, wie die ID eine ist */
     $stmt->bind_param("i", $_GET['id']);
     if(!$stmt->execute()){
-        echo "Etwas ist beim Löschen schiefgelaufen :(";
+        echo "<span class='fail-text'>Etwas ist beim Löschen schiefgelaufen :(</span>";
     }else{
-        echo "Umfrage mit der ID '".$_GET['id']."' wurde erfolgreich gelöscht";
+        echo "<span class='success-text'>Umfrage mit der ID '".$_GET['id']."' wurde erfolgreich gelöscht</span>";
     }
     echo '<a class="btn btn-primary" style="margin-left:40px" href="/admin.php" role="button">Zurück</a>';
 }

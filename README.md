@@ -13,8 +13,8 @@ Conventions:
 - prepared statements when user input is involved, simple "mysqli_query" if all parameters are intern
 - seperated queries in iteration instead of big single query
 - avoiding html-echoing as much as possible, using shortcuts like "<?= $var ?>" or "while():", "endwhile;"
-
-
+- deleting of category is forbidden if already category is present in
+at least one survey, because a survey must have a category
 
 weaknesses:
 - Excessive Querying in loops instead of bigger statements and mapping afterwards

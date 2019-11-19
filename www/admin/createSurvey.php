@@ -33,13 +33,8 @@ if (isset($_POST['title']) && !empty($_POST['title'])){
     /* Der erste Parameter der Funktion bind_param() sagt aus, welchen Typ das jeweilige Fragezeichen in der Query
     haben soll. Die Reihenfolge ist dabei entscheidend. Übergeben werden 4 Strings und eine ID (Integer) */
     $stmt->bind_param("ssssi", $_POST['title'],$_POST['description'], $_POST['start_date'],$_POST['end_date'],$_POST['category_id']);
-    if(!$stmt->execute()){
-        echo "Fehler beim Erstellen der Umfrage";
-    }else{
-        echo "Neue Umfrage wurde erfolgreich erstellt!<br>";
-    }
-    echo "Fragen und Antworten:<br>";
-    
+    $stmt->execute();
+
      /* Hole die ID, jener Umfrage, die gerade erstellt worden ist */
     $latestSurveyID = $stmt->insert_id;
     /* Wenn irgendwo im Laufe der Erstellung von Fragen und Antworten ein Fehler passiert
@@ -126,9 +121,11 @@ if (isset($_POST['title']) && !empty($_POST['title'])){
     einem Fehler gekommen, so wird die Umfrage wieder aus der Datenbank entfernt, damit diese
     nicht vollmüllt */
     if($error || !$atLeastOneValidAnswerOption){
-        echo "Lösche Umfrage wieder, da es zu einem Fehler während der Erstellung gekommen ist<br>";
+        echo "<span class='fail-text'>Lösche Umfrage wieder, da es zu einem Fehler während der Erstellung gekommen ist</span><br>";
         $sql = "DELETE FROM survey WHERE id = $latestSurveyID";
         $res = mysqli_query($mysqli, $sql); 
+    }else{
+        echo "<span class='success-text'>Neue Umfrage wurde erfolgreich erstellt!</span><br>";
     }
     echo '<a class="btn btn-primary" style="margin-left:40px" href="/admin/manageCategories.php" role="button">Zurück</a>';
     createFooter();
@@ -136,7 +133,7 @@ if (isset($_POST['title']) && !empty($_POST['title'])){
 }
 ?>
 
-    <form id="create-survey-form" action='createSurvey.php' method='POST'>
+    <form class="survey-form" style="width:500px; margin:0 auto;" action='createSurvey.php' method='POST'>
         <label for="title">Titel:</label>
         <input id="title" type="text" name='title' value="" size="50" />
 
@@ -164,7 +161,7 @@ if (isset($_POST['title']) && !empty($_POST['title'])){
             ?>
         </select>
 
-        <h5>Fragen (maximal 5, Leere Felder werden ignoriert. Jede Zeile ist eine Antwortmöglichkeit)</h5>
+        <h5 style="margin-top: 40px">Fragen (maximal 5, Leere Felder werden ignoriert. Jede Zeile ist eine Antwortmöglichkeit)</h5>
 
         <?php
         /* Um kein Javascript zu verwenden, welches dynamisch immer wieder Inputfelder für weitere
@@ -176,7 +173,7 @@ if (isset($_POST['title']) && !empty($_POST['title'])){
          echo '<textarea id="question-titel-'.$i.'" name="question_titel'.$i.'" rows="3" cols="50"></textarea>';
  
          echo '<label for="answers-'.$i.'">'.$i.'. Antwortmöglichkeiten:</label>';
-         echo '<textarea id="answers-'.$i.'" name="answers_'.$i.'" rows="5" cols="50"></textarea>';
+         echo '<textarea style="margin-bottom:40px" id="answers-'.$i.'" name="answers_'.$i.'" rows="5" cols="50"></textarea>';
         }
         ?>
         <input type='submit' class="btn btn-primary" value='Erstellen'>

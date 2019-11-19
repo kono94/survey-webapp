@@ -10,9 +10,11 @@ createHeader("Adminbereich");
 $sql = "SELECT survey.*, category.name AS category_name FROM survey INNER JOIN category ON survey.category_id = category.id ORDER BY survey.end_date DESC";
 $res = mysqli_query($mysqli, $sql);
 ?>
-<a class="btn btn-primary" href="/admin/createSurvey.php" role="button">Umfrage erstellen</a>
-<a class="btn btn-primary" href="/admin/manageCategories.php" role="button">Kategorien verwalten</a>
-
+<div class="button-group">
+    <a class="btn btn-primary" href="/admin/createSurvey.php" role="button">Umfrage erstellen</a>
+    <a class="btn btn-primary" href="/admin/manageCategories.php" role="button">Kategorien verwalten</a>
+    <a class="btn btn-primary" href="/admin/mostVotedSurvey.php" role="button">Beliebteste Umfragen</a>
+</div>
 <table class="table" style="width:80%; margin:0 auto; cursor:default">
   <thead>
     <tr>
@@ -22,9 +24,11 @@ $res = mysqli_query($mysqli, $sql);
       <th scope="col">Kategorie</th>
       <th scope="col">Beginn</th>
       <th scope="col">Ende</th>
+      <th scope="col">Auswertung</th>
       <th scope="col">Bearbeiten</th>
       <th scope="col">Votes zurücksetzen</th>
       <th scope="col">Umfrage löschen</th>
+      <th scope="col">Status</th>
     </tr>
   </thead>
   <tbody>
@@ -36,16 +40,18 @@ Wird benutzt um die Hintergrundsfarbe der Zeilen zu ändern. Rot, wenn die Umfra
 grün, wenn sie noch aktiv ist */
 $currentDate = date('Y-m-d', time());
 while ($survey = mysqli_fetch_assoc($res)):?> 
-    <tr style="background-color:<?php echo $survey['end_date'] > $currentDate ? 'rgba(0, 255, 0, 0.3)' : 'rgba(255, 0, 0, 0.3)'?>">
+    <tr style="background-color:<?php echo $survey['end_date'] > $currentDate ? 'rgba(0, 255, 0, 0.2)' : 'rgba(255, 0, 0, 0.2)'?>">
         <td><?=$survey['id']?></td>
         <td scope="row"><?=$survey['title']?></td>
         <td><?=$survey['description_text']?></td>
-        <td><?=$survey['category_name']?></td>
+        <td style="text-align:center;"><?=$survey['category_name']?></td>
         <td><?=$survey['start_date']?></td>
         <td><?=$survey['end_date']?></td>
-        <td><a href='/admin/editSurvey.php?id=<?=$survey['id']?>'><i class="fas fa-pen" style="font-size:25px"></i></a></td>
-        <td><a href='/admin/clearVotes.php?id=<?=$survey['id']?>'><i class="fas fa-broom" style="font-size:25px"></i></a></td>
-        <td><a href='/admin/deleteSurvey.php?id=<?=$survey['id']?>'><i class="fas fa-trash-alt" style="font-size:25px"></i></a></td>
+        <td style="text-align:center;"><a href='/survey/result.php?id=<?=$survey['id']?>'><i class="fas fa-clipboard" style="font-size:25px"></i></a></td>
+        <td style="text-align:center;"><a href='/admin/editSurvey.php?id=<?=$survey['id']?>'><i class="fas fa-pen" style="font-size:25px"></i></a></td>
+        <td style="text-align:center;"><a href='/admin/clearVotes.php?id=<?=$survey['id']?>'><i class="fas fa-broom" style="font-size:25px"></i></a></td>
+        <td style="text-align:center;"><a href='/admin/deleteSurvey.php?id=<?=$survey['id']?>'><i class="fas fa-trash-alt" style="font-size:25px"></i></a></td>
+        <td><?php echo $survey['end_date'] > $currentDate ? 'aktiv' : 'inaktiv'?></td>
     </tr>
 <?php 
 endwhile;

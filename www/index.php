@@ -15,9 +15,9 @@ $res = mysqli_query($mysqli, $sql);
   <thead>
     <tr>
       <th scope="col">ID</th>
-      <th scope="col">Title</th>
-      <th scope="col">Description</th>
-      <th scope="col">Category</th>
+      <th scope="col">Titel</th>
+      <th scope="col">Beschreibung</th>
+      <th scope="col">Kategorie</th>
       <th scope="col">Vote</th>
     </tr>
   </thead>

@@ -67,6 +67,7 @@ $sql = "SELECT survey.*, category.name AS category_name FROM survey INNER JOIN c
 $stmt = $mysqli->prepare($sql);
 $stmt->bind_param("i", $_GET['id']);
 $stmt->execute();
+$res = $stmt->get_result();
 /* Gebe Fehlernachricht aus, wenn keine Umfrage mit angegebener ID existiert */
 if($res->num_rows === 0){
     echo "Keine passende Umfrage mit der ID ".$_GET['id']." gefunden";
@@ -82,7 +83,7 @@ createHeader("Umfrage-Tool");
 <h3>
     <?= $survey['title'] ?> (ID: <?= $survey['id'] ?>)
 </h3>
-<p> 
+<p style="margin-bottom:40px"> 
     <?= $survey['description_text'] ?> 
 </p>
 <form action='vote.php' method='POST'>

@@ -12,12 +12,27 @@
 .question{
     margin-bottom: 40px;
 }
-#create-survey-form input, label, textarea{
+.survey-form input, label, textarea{
     display: block;
 }
-#create-survey-form label{
+.survey-form label{
     margin-top: 20px;
 }
 body{
     padding: 20px;
+}
+.button-group{
+    text-align: center;
+    margin-bottom: 40px;
+    margin-top: 40px;
+}
+
+.navtop a{
+    margin-right:20px;
+}
+.success-text{
+    color: green;
+}
+.fail-text{
+    color:red;
 }

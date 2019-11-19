@@ -30,10 +30,10 @@ if (!isset($_GET['id']) || empty($_GET['id'])) {
         $stmt = $mysqli->prepare($sql);
         $stmt->bind_param("i", $_GET['id']);
         if(!$stmt->execute()){
-            echo "Etwas ist beim Löschen schiefgelaufen :(";
+            echo "<span class='fail-text'>Etwas ist beim Löschen schiefgelaufen :(</span>";
             # echo "Execute failed: (" . $stmt->errno . ") " . $stmt->error;
         }else{
-            echo "Alle Votes und Freitexteingaben für die Umfrage mit der ID '".$_GET['id']."' wurde erfolgreich gelöscht";
+            echo "<span class='success-text'>Alle Votes und Freitexteingaben für die Umfrage mit der ID '".$_GET['id']."' wurde erfolgreich gelöscht</span>";
             echo '<a class="btn btn-primary" style="margin-left:40px" href="/admin.php" role="button">Zurück</a>';
          }
     }

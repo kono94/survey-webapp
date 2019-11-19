@@ -17,8 +17,8 @@ function createHeader($title){
         <nav class="navtop" style="margin-bottom:40px; margin-top:20px">
             <div style="text-align:center">
                 <h1>Umfrage-Tool</h1>
-                <a href="/index.php"><i class="fas fa-poll-h"></i>Alle Umfragen</a>
-                <a href="/admin.php"><i class="fas fa-user"></i>Admin</a>
+                <a href="/index.php"><i class="fas fa-poll-h"></i> Alle Umfragen</a>
+                <a href="/admin.php"><i class="fas fa-user"></i> Admin</a>
             </div>
         </nav>
 <?php
