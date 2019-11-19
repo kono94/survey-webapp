@@ -1,4 +1,5 @@
-CREATE DATABASE test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+DROP DATABASE IF EXISTS test;
+CREATE DATABASE test CHARACTER SET utf8 COLLATE utf8_general_ci;
 USE test;
 create table if not exists answer
 (
@@ -144,7 +145,7 @@ INSERT INTO test.question_answer_option (id, question_id, answer_id) VALUES (14,
 INSERT INTO test.question_answer_option (id, question_id, answer_id) VALUES (15, 3, 14);
 INSERT INTO test.question_answer_option (id, question_id, answer_id) VALUES (16, 3, 15);
 INSERT INTO test.survey (id, title, start_date, end_date, category_id, description_text) VALUES (1, 'Bewegungsumfrage', '2019-11-17', '2019-12-17', 1, 'Kurze Umfrage, um herauszufinden, wie oft sich die Befragten körperlich aktiv sind.');
-INSERT INTO test.survey (id, title, start_date, end_date, category_id, description_text) VALUES (2, 'Sonntagsfrage Bundestagswahl', '2019-11-17', '2019-11-17', 2, 'enn am nächsten Sonntag Bundestagswahl wäre...');
+INSERT INTO test.survey (id, title, start_date, end_date, category_id, description_text) VALUES (2, 'Sonntagsfrage Bundestagswahl', '2019-11-17', '2019-11-17', 2, 'Wenn am nächsten Sonntag Bundestagswahl wäre...');
 INSERT INTO test.survey_question (id, question_id, survey_id) VALUES (1, 1, 2);
 INSERT INTO test.survey_question (id, question_id, survey_id) VALUES (2, 2, 1);
 INSERT INTO test.survey_question (id, question_id, survey_id) VALUES (3, 3, 1);
