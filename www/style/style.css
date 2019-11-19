@@ -12,6 +12,12 @@
 .question{
     margin-bottom: 40px;
 }
+#create-survey-form input, label, textarea{
+    display: block;
+}
+#create-survey-form label{
+    margin-top: 20px;
+}
 body{
     padding: 20px;
 }

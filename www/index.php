@@ -2,12 +2,13 @@
 require "includes/header.inc.php";
 require "includes/footer.inc.php";
 
-/* use $con to access the database */
+/* Ab hier kann man $mysqli benutzen um mit der Datenbank zu interagieren */
 require "includes/dbConnection.inc.php";
 
 createHeader("Umfrage-Tool");
 
-$sql = "SELECT survey.*, category.name AS category_name FROM survey INNER JOIN category ON survey.category_id = category.id";
+/* Besorge alle Umfragen, die noch nicht beendet sind */ 
+$sql = "SELECT survey.*, category.name AS category_name FROM survey INNER JOIN category ON survey.category_id = category.id WHERE survey.start_date < NOW() AND survey.end_date > NOW()";
 $res = mysqli_query($mysqli, $sql);
 ?>
 <table class="table" style="width:80%; margin:0 auto; cursor:default">
@@ -22,16 +23,15 @@ $res = mysqli_query($mysqli, $sql);
   </thead>
   <tbody>
 <?php
-$i = 0;
-foreach ($res as $survey): $i++;?>
+while ($survey = mysqli_fetch_assoc($res)):?>
     <tr>
-        <td><?=$i?></td>
-        <td scope="survey$survey"><?=$survey['title']?></td>
+        <td><?=$survey['id']?></td>
+        <td scope="row"><?=$survey['title']?></td>
         <td><?=$survey['description_text']?></td>
         <td><?=$survey['category_name']?></td>
         <td><a href='/survey/vote.php?id=<?=$survey['id']?>'><i class="fas fa-poll" style="font-size:25px"></i></a></td>
     </tr>
 <?php 
-endforeach;
+endwhile;
 createFooter();
 ?>

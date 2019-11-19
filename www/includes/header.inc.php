@@ -1,4 +1,7 @@
 <?php
+/* Simple Funktion, die den HTML-Code für den Kopf der Webseite ausgibt. Man
+kann den Titel der Webseite übergeben, dieser wird oben im Tab angezeigt.
+Bootstrap für besseres Aussehen und Fontawesome für Icons wird mit eingebunden */
 function createHeader($title){
 ?>
 <!DOCTYPE html>
@@ -15,6 +18,7 @@ function createHeader($title){
             <div style="text-align:center">
                 <h1>Umfrage-Tool</h1>
                 <a href="/index.php"><i class="fas fa-poll-h"></i>Alle Umfragen</a>
+                <a href="/admin.php"><i class="fas fa-user"></i>Admin</a>
             </div>
         </nav>
 <?php

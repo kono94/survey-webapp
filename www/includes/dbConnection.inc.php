@@ -4,6 +4,6 @@
     $dbUser = "root";
     $dbPassword = "root";
 
-    /* Create connection with database */
+    /* Erstelle eine Verbindung zur Datenbank */
     $mysqli = mysqli_connect($dbHost, $dbUser, $dbPassword, $dbDatabase);
 ?>

@@ -1,4 +1,4 @@
-CREATE DATABASE test;
+CREATE DATABASE test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE test;
 create table if not exists answer
 (
@@ -51,8 +51,8 @@ create table if not exists survey
     id               bigint auto_increment
         primary key,
     title            text                                not null,
-    start_date       timestamp default CURRENT_TIMESTAMP not null,
-    end_date         timestamp default CURRENT_TIMESTAMP not null,
+    start_date       date                                not null,
+    end_date         date                                not null,
     category_id      bigint                              not null,
     description_text mediumtext                          null,
     constraint survey_category_id_fk
@@ -68,10 +68,10 @@ create table if not exists survey_question
     survey_id   bigint not null,
     constraint survey_question_question_id_fk
         foreign key (question_id) references question (id)
-            on update cascade,
+            on update cascade on delete cascade,
     constraint survey_question_survey_id_fk
         foreign key (survey_id) references survey (id)
-            on update cascade
+            on update cascade on delete cascade
 );
 
 create table if not exists survey_result
@@ -143,8 +143,8 @@ INSERT INTO test.question_answer_option (id, question_id, answer_id) VALUES (13,
 INSERT INTO test.question_answer_option (id, question_id, answer_id) VALUES (14, 3, 13);
 INSERT INTO test.question_answer_option (id, question_id, answer_id) VALUES (15, 3, 14);
 INSERT INTO test.question_answer_option (id, question_id, answer_id) VALUES (16, 3, 15);
-INSERT INTO test.survey (id, title, start_date, end_date, category_id, description_text) VALUES (1, 'Bewegungsumfrage', '2019-11-17 07:47:57', '2019-12-17 07:47:57', 1, 'Kurze Umfrage, um herauszufinden, wie oft sich die Befragten körperlich aktiv sind.');
-INSERT INTO test.survey (id, title, start_date, end_date, category_id, description_text) VALUES (2, 'Sonntagsfrage Bundestagswahl', '2019-11-17 07:49:59', '2019-11-17 07:49:59', 2, 'enn am nächsten Sonntag Bundestagswahl wäre...');
+INSERT INTO test.survey (id, title, start_date, end_date, category_id, description_text) VALUES (1, 'Bewegungsumfrage', '2019-11-17', '2019-12-17', 1, 'Kurze Umfrage, um herauszufinden, wie oft sich die Befragten körperlich aktiv sind.');
+INSERT INTO test.survey (id, title, start_date, end_date, category_id, description_text) VALUES (2, 'Sonntagsfrage Bundestagswahl', '2019-11-17', '2019-11-17', 2, 'enn am nächsten Sonntag Bundestagswahl wäre...');
 INSERT INTO test.survey_question (id, question_id, survey_id) VALUES (1, 1, 2);
 INSERT INTO test.survey_question (id, question_id, survey_id) VALUES (2, 2, 1);
 INSERT INTO test.survey_question (id, question_id, survey_id) VALUES (3, 3, 1);

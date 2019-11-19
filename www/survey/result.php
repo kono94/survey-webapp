@@ -1,21 +1,31 @@
 <?php
 require "../includes/header.inc.php";
 require "../includes/footer.inc.php";
-/* use $con to access the database */
+/* Ab hier kann man $mysqli benutzen um mit der Datenbank zu interagieren */
 require "../includes/dbConnection.inc.php";
 
+/* Die ID der Umfrage muss in der URL angegeben werden*/
 if (!isset($_GET['id']) || empty($_GET['id'])) {
     echo "You did not pass in an ID.";
     exit;
 }
 
+createHeader("Resultat");
+
+/* Hole die Umfrage, zu der die Ergebnisse angezeigt werden sollen mit der dazugehörigen Kategorie  */
 $sql = "SELECT survey.*, category.name AS category_name FROM survey INNER JOIN category ON survey.category_id = category.id WHERE survey.id = ? LIMIT 1";
 $stmt = $mysqli->prepare($sql);
 $stmt->bind_param("i", $_GET['id']);
 $stmt->execute();
-$survey = $stmt->get_result()->fetch_assoc();
-
-createHeader("Resultat - ".$survey['title']);
+$res = $stmt->get_result();
+/* Gebe Fehlernachricht aus, wenn keine Umfrage mit angegebener ID existiert */
+if($res->num_rows === 0){
+    echo "Keine passende Umfrage mit der ID ".$_GET['id']." gefunden";
+    exit;
+}
+ /* Wir wissen, dass nur maximal ein Eintrag im "result" auftreten wird,
+    deswegen reicht es einmal "fetch_assoc()" aufzurufen */ 
+$survey = $res->fetch_assoc();
 ?>
 
 <h3>
@@ -27,21 +37,34 @@ createHeader("Resultat - ".$survey['title']);
 
 
 <? 
+
+    /* Hole alle Fragen, die zu dieser Umfrage gehören mit dem jeweiligen question_typ,
+     um zwischen vorgebenen Antwortmöglichkeiten (radio-button-fragen) und Freitexteingaben
+     der Benutzer zu unterscheiden */
     $sql = "SELECT q.id, q.title, qt.name AS question_type_name FROM survey_question AS sq LEFT JOIN question AS q ON sq.id = q.id INNER JOIN question_type AS qt ON q.question_type_id = qt.id WHERE sq.survey_id = ".$survey['id'];
-    $questions = mysqli_query($mysqli, $sql);
+    $res = mysqli_query($mysqli, $sql);
+    /* Index um die Fragen zu Nummerieren */
     $index = 0;
-    foreach ($questions as $question): 
+    while ($question = mysqli_fetch_assoc($res)):
         $index++;
+        /* Schaue nach wieviele Stimmen insgesamt für diese Frage abgegeben worden sind */
         $sql = "SELECT count(*) AS totalVotes FROM survey_result AS sr LEFT JOIN question_answer_option AS qao ON sr.question_answer_option_id = qao.id WHERE sr.survey_id = ".$survey['id']." AND qao.question_id = ".$question['id'];
+        /* fetch_assoc() returnt ein Array, auf das man direkt zugreifen kann, das spart unnötige Variablen */
         $totalVotes = mysqli_query($mysqli, $sql)->fetch_assoc()['totalVotes'];
     ?>
         <div class="question">
             <h5><?= $index.". ".$question['title'] ?> (<?=$totalVotes?> insgesamt)</h5>
             <div>
                 <? 
+                /* Hole alle Antworten mit der jeweiligen Anzahl der Stimmen, die diese bekommen hat.
+                Dazu Gruppieren wir alle Zeilen nach der answer.id. Das count(*) in dem Selectpart
+                bezieht sich automatisch auf die jeweiligen Gruppen, die gebildet worden sind */
                 $sql = "SELECT count(*) AS answerVotes, a.title AS totalVotes FROM survey_result AS sr LEFT JOIN question_answer_option AS qao ON sr.question_answer_option_id = qao.id LEFT JOIN answer AS a ON qao.answer_id = a.id WHERE sr.survey_id = ".$survey['id']." AND qao.question_id = ".$question['id']." GROUP BY a.id";
-                $answers = mysqli_query($mysqli, $sql);
-                foreach ($answers as $answer): 
+                $res = mysqli_query($mysqli, $sql);
+                /* Gehe durch alle Antworten und zeige diese an. Wir haben die Gesamtanzahl der Stimmen für
+                diese Frage und für jede einzelne Antwort, somit können wir den Anteil jeder Antwortmöglichkeit berechnen.
+                Die Prozentanzahl kann man zudem als Wert für "width" verwenden, um eine result bar anzeigen zu lassen */
+                while ($answer = mysqli_fetch_assoc($res)): 
                     $answerVotes = $answer['answerVotes'];?>
                     <div style="width:500px">
                         <?= $answer['title'] ?> (<?=$answerVotes?> votes)
@@ -49,10 +72,10 @@ createHeader("Resultat - ".$survey['title']);
                          <?=@round(($answerVotes/$totalVotes)*100)?>%
                 </div>
                     </div>
-                <? endforeach ?>
+                <? endwhile; ?>
             </div>
         </div>
-    <? endforeach ?>
+    <? endwhile; ?>
 <?php
 createFooter();
 ?>

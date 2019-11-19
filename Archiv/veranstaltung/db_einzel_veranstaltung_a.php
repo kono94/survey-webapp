@@ -13,7 +13,7 @@
 
    // Überschrift
    echo "<tr> <td>VeranstaltingsID</td> <td>Bezeichnung</td>";
-   
+
    while ($dsatz = mysqli_fetch_assoc($res))
    {
       echo "<tr>";
