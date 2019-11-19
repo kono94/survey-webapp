@@ -13,7 +13,7 @@ class TemplateFactory{
             <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css">
         </head>
         <body>
-        <nav class="navtop">
+        <nav class="navtop" style="margin-bottom:40px">
             <div>
                 <h1>Umfrage-Tool</h1>
                 <a href="index.php"><i class="fas fa-poll-h"></i>Alle Umfragen</a>
