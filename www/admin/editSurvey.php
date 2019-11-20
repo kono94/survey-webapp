@@ -79,7 +79,7 @@ if (!isset($_GET['id']) || empty($_GET['id'])) {
             <input type='hidden' name='survey_id' value='<?= $survey['id'] ?>' />
             <input type='submit' class="btn btn-primary" value='Speichern'>
         </form>
-        <?
+        <?php
     }
 }
 createFooter();

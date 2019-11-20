@@ -54,7 +54,7 @@ if (!isset($_GET['id']) || empty($_GET['id'])) {
             <input type='hidden' name='category_id' value='<?= $category['id'] ?>' />
             <input type='submit' class="btn btn-primary" value='Absenden'>
         </form>
-        <?
+        <?php
     }
 }
 createFooter();

@@ -27,7 +27,6 @@ if($res->num_rows === 0){
     deswegen reicht es einmal "fetch_assoc()" aufzurufen */ 
 $survey = $res->fetch_assoc();
 ?>
-
 <h3>
     <?= $survey['title'] ?> (ID: <?= $survey['id'] ?>)
 </h3>
@@ -35,7 +34,7 @@ $survey = $res->fetch_assoc();
 <p style="margin-bottom:40px"> 
     <?= $survey['description_text'] ?> 
 </p>
-<? 
+<?php 
 
     /* Hole alle Fragen, die zu dieser Umfrage gehören mit dem jeweiligen question_typ,
      um zwischen vorgebenen Antwortmöglichkeiten (radio-button-fragen) und Freitexteingaben
@@ -49,7 +48,8 @@ $survey = $res->fetch_assoc();
         /* Schaue nach wieviele Stimmen insgesamt für diese Frage abgegeben worden sind */
         $sql = "SELECT count(*) AS totalVotes FROM survey_result AS sr LEFT JOIN question_answer_option AS qao ON sr.question_answer_option_id = qao.id WHERE sr.survey_id = ".$survey['id']." AND qao.question_id = ".$question['id'];
         /* fetch_assoc() returnt ein Array, auf das man direkt zugreifen kann, das spart unnötige Variablen */
-        $totalVotes = mysqli_query($mysqli, $sql)->fetch_assoc()['totalVotes'];
+        $totalVotesResult = mysqli_query($mysqli, $sql);
+        $totalVotes = mysqli_fetch_assoc($totalVotesResult)['totalVotes'];
         /* Verhindere, dass später durch 0 geteilt wird */
         if($totalVotes == 0){
             $totalVotes = 1;
@@ -58,7 +58,7 @@ $survey = $res->fetch_assoc();
         <div class="question">
             <h5><?= $index.". ".$question['title'] ?> (<?=$totalVotes?> insgesamt)</h5>
             <div>
-                <? 
+                <?php 
                 /* Hole alle Antwortmöglichkeiten, die zu der Frage gehören */
                 $sql = "SELECT a.id, a.title FROM question_answer_option AS qao INNER JOIN answer AS a ON a.id = qao.answer_id WHERE qao.question_id = ".$question['id'];
                 $answerResult = mysqli_query($mysqli, $sql);
@@ -77,10 +77,10 @@ $survey = $res->fetch_assoc();
                          <?=@round(($answerVotes/$totalVotes)*100)?>%
                 </div>
                     </div>
-                <? endwhile; ?>
+                <?php endwhile; ?>
             </div>
         </div>
-    <? endwhile; ?>
+    <?php endwhile; ?>
 <?php
 createFooter();
 ?>

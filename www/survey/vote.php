@@ -87,7 +87,7 @@ createHeader("Umfrage-Tool");
     <?= $survey['description_text'] ?> 
 </p>
 <form action='vote.php' method='POST'>
-    <? 
+    <?php 
      /* Hole alle Fragen, die zu dieser Umfrage gehören mit dem jeweiligen question_typ,
      um zwischen vorgebenen Antwortmöglichkeiten (radio-button-fragen) und Freitexteingaben
      der Benutzer zu unterscheiden */
@@ -99,22 +99,22 @@ createHeader("Umfrage-Tool");
         <div>
             <h5><?= $index.". ".$question['title'] ?></h5>
             <div class="question">
-                <? 
+                <?php 
                 /* Hole alle Antwortmöglichkeiten zu dieser Frage. Über die Kreuztabelle
                  question_answer_option, werden Fragen mit Antwortmöglichkeiten verbunden.
                  Man muss sich also nur alle Einträge dieser Tabelle holen, wo die question_id mit ID der 
                  Frage gleich ist und alle Antworten dazu holen (LEFT JOIN), um ihren "title" zu kommen */
                 $sql = "SELECT a.id, a.title, qao.id AS qao_id FROM question_answer_option AS qao LEFT JOIN answer AS a ON qao.answer_id = a.id WHERE qao.question_id =".$question['id'];
-                $res = mysqli_query($mysqli, $sql);
-                while ($answer = mysqli_fetch_assoc($res)):?>
+                $answerResult = mysqli_query($mysqli, $sql);
+                while ($answer = mysqli_fetch_assoc($answerResult)):?>
                     <div>
                         <input id="<?=$answer['qao_id']?>" type='radio' name='<?= $question['id'] ?>' value='<?= $answer['qao_id'] ?>'>
                         <label for="<?=$answer['qao_id']?>"><?= $answer['title'] ?></label>
                     </div>
-                <? endwhile; ?>
+                <?php endwhile; ?>
             </div>
         </div>
-    <? endwhile; ?>
+    <?php endwhile; ?>
 
     <input type='hidden' name='survey_id' value='<?= $survey['id'] ?>' />
     <input type='submit' class="btn btn-primary" value='Absenden'>
