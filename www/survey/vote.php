@@ -63,7 +63,7 @@ if (!isset($_GET['id']) || empty($_GET['id'])) {
 /* Hole Umfrage, die angezeigt werden soll. Verwende prepared statement, da der Benutzer
 über die URL einfach die ID angeben kann, auch Strings, die schädlich sein könnten, wenn sie
 direkt in die Query hineingesetzt werden (SQL-Injection) */
-$sql = "SELECT survey.*, category.name AS category_name FROM survey INNER JOIN category ON survey.category_id = category.id WHERE survey.id = ? LIMIT 1";
+$sql = "SELECT survey.*, category.name AS category_name, category.color AS category_color FROM survey INNER JOIN category ON survey.category_id = category.id WHERE survey.id = ? LIMIT 1";
 $stmt = $mysqli->prepare($sql);
 $stmt->bind_param("i", $_GET['id']);
 $stmt->execute();
@@ -79,9 +79,11 @@ $survey = $res->fetch_assoc();
 
 createHeader("Umfrage-Tool");
 ?>
-
+<div style="margin: 0 auto;
+    width: 80%;
+    text-align: center;">
 <h3>
-    <?= $survey['title'] ?> (ID: <?= $survey['id'] ?>)
+    <?= $survey['title'] ?> (ID: <?= $survey['id']?>, Kategorie: <span style="font-weigt:700; color:<?= $survey['category_color']?>"><?=$survey['category_name']?></span>)
 </h3>
 <p style="margin-bottom:40px"> 
     <?= $survey['description_text'] ?> 
@@ -96,7 +98,8 @@ createHeader("Umfrage-Tool");
     /* Index um die Fragen zu Nummerieren */
     $index = 0;
     while ($question = mysqli_fetch_assoc($res)): $index++;?>
-        <div>
+        <div style="border-top: 10px solid <?= $survey['category_color']?>;
+                    padding-top: 20px;">
             <h5><?= $index.". ".$question['title'] ?></h5>
             <div class="question">
                 <?php 
@@ -117,8 +120,9 @@ createHeader("Umfrage-Tool");
     <?php endwhile; ?>
 
     <input type='hidden' name='survey_id' value='<?= $survey['id'] ?>' />
-    <input type='submit' class="btn btn-primary" value='Absenden'>
+    <input type='submit' class="btn btn-primary" value='Absenden' style="background-color: <?= $survey['category_color']?>; border-color: <?= $survey['category_color']?>">
 </form>
+</div>
 <?php
 createFooter();
 ?>

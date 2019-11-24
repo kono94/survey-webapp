@@ -13,7 +13,7 @@ if (!isset($_GET['id']) || empty($_GET['id'])) {
 createHeader("Resultat");
 
 /* Hole die Umfrage, zu der die Ergebnisse angezeigt werden sollen mit der dazugehörigen Kategorie  */
-$sql = "SELECT survey.*, category.name AS category_name FROM survey INNER JOIN category ON survey.category_id = category.id WHERE survey.id = ? LIMIT 1";
+$sql = "SELECT survey.*, category.name AS category_name, category.color AS category_color FROM survey INNER JOIN category ON survey.category_id = category.id WHERE survey.id = ? LIMIT 1";
 $stmt = $mysqli->prepare($sql);
 $stmt->bind_param("i", $_GET['id']);
 $stmt->execute();
@@ -27,8 +27,11 @@ if($res->num_rows === 0){
     deswegen reicht es einmal "fetch_assoc()" aufzurufen */ 
 $survey = $res->fetch_assoc();
 ?>
+<div style="margin: 0 auto;
+    width: 80%;
+    text-align: center;">
 <h3>
-    <?= $survey['title'] ?> (ID: <?= $survey['id'] ?>)
+    <?= $survey['title'] ?> (ID: <?= $survey['id'] ?>, Kategorie: <span style="font-weigt:700; color:<?= $survey['category_color']?>"><?=$survey['category_name']?></span>)
 </h3>
 <span>Beschreibung:</span>
 <p style="margin-bottom:40px"> 
@@ -55,9 +58,9 @@ $survey = $res->fetch_assoc();
             $totalVotes = 1;
         }
     ?>
-        <div class="question">
+    <div>
             <h5><?= $index.". ".$question['title'] ?> (<?=$totalVotes?> insgesamt)</h5>
-            <div>
+            <div class="question" style="margin-left: 20%;">
                 <?php 
                 /* Hole alle Antwortmöglichkeiten, die zu der Frage gehören */
                 $sql = "SELECT a.id, a.title FROM question_answer_option AS qao INNER JOIN answer AS a ON a.id = qao.answer_id WHERE qao.question_id = ".$question['id'];
@@ -73,14 +76,15 @@ $survey = $res->fetch_assoc();
                     ?>
                     <div style="width:500px">
                         <?= $answer['title'] ?> (<?=$answerVotes?> votes)
-                        <div class="result-bar" style= "width:<?=@round(($answerVotes/$totalVotes)*100)?>%">
-                         <?=@round(($answerVotes/$totalVotes)*100)?>%
-                </div>
+                        <div class="result-bar" style= "width:<?=@round(($answerVotes/$totalVotes)*100)?>%; background-color: <?= $survey['category_color']?>">
+                             <?=@round(($answerVotes/$totalVotes)*100)?>%
+                        </div>
                     </div>
                 <?php endwhile; ?>
             </div>
-        </div>
+                </div>
     <?php endwhile; ?>
+</div>
 <?php
 createFooter();
 ?>

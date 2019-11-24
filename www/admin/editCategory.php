@@ -8,19 +8,21 @@ require "../includes/dbConnection.inc.php";
 createHeader("Umfrage löschen");
 
 /* Formular wurde ausgefüllt und abgeschickt */
-if (isset($_POST['category_id']) && !empty($_POST['category_id']) && isset($_POST['new_name']) && !empty($_POST['new_name'])) {
+if (isset($_POST['category_id']) && !empty($_POST['category_id']) 
+    && isset($_POST['new_name']) && !empty($_POST['new_name'])
+    && isset($_POST['new_color']) && !empty($_POST['new_color']) ) {
     /* Update den Namen der Kategorie */
-    $sql = "UPDATE category SET name = ? WHERE id = ?";
+    $sql = "UPDATE category SET name = ?, color = ? WHERE id = ?";
     $stmt = $mysqli->prepare($sql);
     /* Es ist möglich mehrere Parameter zu "binden". Die Reihenfolge ist dabei entscheidend.
-    "si" beudetet, dass das erste Fragezeichen als String geparsed werden soll und "i", dass
+    "ssi" beudetet, dass die ersten zwei Fragezeichen als String geparsed werden soll und "i", dass
     es als Ganzzahl geparsed werden soll. Dadurch können keine schädlich SQL Statements
     ausgeführt werden */
-    $stmt->bind_param("si", $_POST['new_name'], $_POST['category_id']);
+    $stmt->bind_param("ssi", $_POST['new_name'], $_POST['new_color'], $_POST['category_id']);
     if(!$stmt->execute() || $stmt->affected_rows === 0){
         echo "<span class='fail-text'>Beim Updaten der Kategorie ist ein Fehler passiert</span>";
     }else{
-        echo "<span class='success-text'>Name der Kategorie wurde erfolgreich angepasst!</span>";
+        echo "<span class='success-text'>Kategorie wurde erfolgreich angepasst!</span>";
     }
     echo '<a class="btn btn-primary" style="margin-left:40px" href="/admin/manageCategories.php" role="button">Zurück</a>';
     createFooter();
@@ -50,6 +52,7 @@ if (!isset($_GET['id']) || empty($_GET['id'])) {
         ?>
         <form style="text-align:center" action='editCategory.php' method='POST'>
             <input type="text" name='new_name' value='<?=$category['name']?>' />
+            <input type="color" name='new_color' value="<?=$category['color']?>">
 
             <input type='hidden' name='category_id' value='<?= $category['id'] ?>' />
             <input type='submit' class="btn btn-primary" value='Absenden'>

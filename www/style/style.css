@@ -10,7 +10,10 @@
       align-items: center;
 }
 .question{
-    margin-bottom: 40px;
+    margin-top:20px;
+    margin-bottom: 70px;
+    margin-left:45%;
+    text-align: left;
 }
 .survey-form input, label, textarea{
     display: block;
@@ -20,6 +23,10 @@
 }
 body{
     padding: 20px;
+    background-color: #F5F5F5 !important;
+}
+html{
+    background-color: #F5F5F5;
 }
 .button-group{
     text-align: center;

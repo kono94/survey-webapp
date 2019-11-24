@@ -9,7 +9,7 @@ createHeader("Umfrage-Tool");
 
 /* Hole alle Kategorien und die Anzahl, wie oft jede einzelne einer
 Umfrage zugeordnet ist, um sie in einer Tabelle darzustellen. */
-$sql = "SELECT category.id, category.name, count(survey.id) AS anzahl FROM category
+$sql = "SELECT category.id, category.name, category.color, count(survey.id) AS anzahl FROM category
        LEFT JOIN survey
        ON category.id = survey.category_id
        GROUP BY category.id";
@@ -23,8 +23,9 @@ $res = mysqli_query($mysqli, $sql);
     <tr>
       <th scope="col">ID</th>
       <th scope="col">Name</th>
+      <th scope="col">Farbe</th>
       <th scope="col">Anzahl Umfragen</th>
-      <th scope="col">Namen ändern</th>
+      <th scope="col">Bearbeiten</th>
       <th scope="col">Löschen</th>
     </tr>
   </thead>
@@ -35,6 +36,7 @@ while ($category = mysqli_fetch_assoc($res)): ?>
     <tr>
         <td scope="row"><?=$category['id']?></td>
         <td><?=$category['name']?></td>
+        <td><input type="color" value="<?=$category['color']?>"></td>
         <td><?=$category['anzahl']?></td>
         <td><a href='/admin/editCategory.php?id=<?=$category['id']?>'><i class="fas fa-pen" style="font-size:25px"></i></a></td>
         <td>

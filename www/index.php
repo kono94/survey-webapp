@@ -8,7 +8,7 @@ require "includes/dbConnection.inc.php";
 createHeader("Umfrage-Tool");
 
 /* Besorge alle Umfragen, die noch nicht beendet sind */ 
-$sql = "SELECT survey.*, category.name AS category_name FROM survey INNER JOIN category ON survey.category_id = category.id WHERE survey.start_date < NOW() AND survey.end_date > NOW()";
+$sql = "SELECT survey.*, category.name AS category_name, category.color AS category_color FROM survey INNER JOIN category ON survey.category_id = category.id WHERE survey.start_date < NOW() AND survey.end_date > NOW()";
 $res = mysqli_query($mysqli, $sql);
 ?>
 <table class="table" style="width:80%; margin:0 auto; cursor:default">
@@ -28,7 +28,7 @@ while ($survey = mysqli_fetch_assoc($res)):?>
         <td><?=$survey['id']?></td>
         <td scope="row"><?=$survey['title']?></td>
         <td><?=$survey['description_text']?></td>
-        <td><?=$survey['category_name']?></td>
+        <td style="color:<?=$survey['category_color']?>; text-decoration:underline;font-weight:700;"><?=$survey['category_name']?></td>
         <td><a href='/survey/vote.php?id=<?=$survey['id']?>'><i class="fas fa-poll" style="font-size:25px"></i></a></td>
     </tr>
 <?php 

@@ -9,7 +9,8 @@ createHeader("Kategorie erstellen");
 
 /* Formular wurde ausgefüllt und abgeschickt, der Name der neuen
 Kategorie muss gegeben sein */
-if (isset($_POST['category_name']) && !empty($_POST['category_name'])) {
+if (isset($_POST['category_name']) && !empty($_POST['category_name'])
+    && isset($_POST['category_color']) && !empty($_POST['category_color'])) {
     /* Füge neue Kategorie hinzu  */
     $sql = "INSERT INTO category (name) VALUES (?)";
     $stmt = $mysqli->prepare($sql);
@@ -28,6 +29,7 @@ if (isset($_POST['category_name']) && !empty($_POST['category_name'])) {
 ?>
     <form style="text-align: center; margin-top: 80px" action='createCategory.php' method='POST'>
         <input type="text" name='category_name' placeholder="Name der Kategorie" />
+        <input type="color" name='new_color' value="<?=$category['color']?>">
         <input type='submit' class="btn btn-primary" value='Erstellen'>
     </form>  
 <?php
