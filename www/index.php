@@ -7,7 +7,8 @@ require "includes/dbConnection.inc.php";
 
 createHeader("Umfrage-Tool");
 
-/* Besorge alle Umfragen, die noch nicht beendet sind */ 
+/* Besorge alle Umfragen, die aktiv sind, d.h. das jetzige Datum liegt zwischen
+Startdatum und Enddatum der Umfrage */ 
 $sql = "SELECT survey.*, category.name AS category_name, category.color AS category_color FROM survey INNER JOIN category ON survey.category_id = category.id WHERE survey.start_date < NOW() AND survey.end_date > NOW()";
 $res = mysqli_query($mysqli, $sql);
 ?>

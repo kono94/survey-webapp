@@ -57,12 +57,19 @@ if (isset($_POST['survey_id'])) {
         exit;
     }
 
+    /* Merke die ID der "Voting-Session", die gerade erstellt worden ist, um
+    gleich die Antworten mit ihr zu verbinden, die ausgewählt worden sind.
+    Wird außerdem gebraucht, um den Eintrag wieder zu löschen, falls etwas
+    noch schiefgeht */
     $votingID = $stmt->insert_id;
     $error = false;
+    /* Es muss mindestens eine Antwort gespeichert werden. Wird sofort auf true gesetzt,
+    wenn eine Antwort erfolgreich verbunden wird */
     $atLeastOneAnswer = false;
     if($_POST['single_select'] == 1){
         if(isset($_POST[$_POST['survey_id']])){
             $surveyAnswerOptionID = $_POST[$_POST['survey_id']];
+            /* Single Select, speicher die eine Antwort*/
             $sql = " INSERT INTO survey_voting_answer
             (survey_voting_id, survey_answer_option_id)
             VALUES
@@ -78,6 +85,7 @@ if (isset($_POST['survey_id'])) {
             $error = true;
         }
     }else{
+        /* Multi select, speichere alle Antworten, die ausgewählt worden sind */
         foreach(array_keys($_POST) as $surveyAnswerOptionID){
             /* Wie bereit oben angemerkt, muss man aufpassen, da "survey_id" und "single_selecg" auch Keys in
              POST-Data ist. Diese Fälle überspringen wir einfach mit "continue" und die
@@ -100,6 +108,8 @@ if (isset($_POST['survey_id'])) {
         }
     }
     
+    /* Irgendetwas ist bei der Verlinkung zwischen Voting Sessions mit den Antworten
+    schiefgelaufen, lösche die Voting Session wieder */
     if($error || !$atLeastOneAnswer){
         $sql = "DELETE FROM survey_voting WHERE id".$votingID;
         $res = mysqli_query($mysqli, $sql);
@@ -161,7 +171,13 @@ createHeader("Umfrage-Tool");
             $answerResult = mysqli_query($mysqli, $sql);
             while ($answer = mysqli_fetch_assoc($answerResult)):?>
                 <div>
-                    <?php if($survey['single_select'] === 1): ?>
+                    <?php 
+                    /* Bei Single Select werden Radio-Buttons verwendet, mit einer Gruppe. Das heißt alle
+                    Radio Buttons haben den selben namen (survey_id), somit ist nur eine Antwort auswählbar.
+                    Wenn es sich um eine Multi Select Umfrage handelt, so werden Checkboxen generiert.
+                    Diese senden ihr value (survey_answer_option_id) nur dann, wenn sie "checked" sind, sonst
+                    schicken sie nichts. */
+                    if($survey['single_select'] === 1): ?>
                         <input type='radio' id="<?=$answer['sao_id']?>" name='<?= $survey['id'] ?>' value='<?= $answer['sao_id'] ?>'>
                     <?php else:?>
                         <input type='checkbox' id="<?=$answer['sao_id']?>" name='<?= $answer['sao_id'] ?>'>

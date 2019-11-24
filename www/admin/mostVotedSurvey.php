@@ -36,7 +36,13 @@ Wird benutzt um die Hintergrundsfarbe der Zeilen zu ändern. Rot, wenn die Umfra
 grün, wenn sie noch aktiv ist */
 $currentDate = date('Y-m-d', time());
 while ($survey = mysqli_fetch_assoc($res)):
+    /* Hier wird geschaut, ob die Umfrage noch aktiv ist oder nicht.*/
     $isActive = $survey['start_date'] < $currentDate && $survey['end_date'] > $currentDate;
+    /* Ein Eintrag in der Tabelle "survey_voting" bedeutet, dass eine Person die Umfrage
+    abgeschlossen und auf "speichern" gedrückt hat. Welche Antworten, potentiell mehrere
+    bei Multi Select, ausgewählt worden sind, ist in der Tabelle "survey_voting_answer" gespeichert.
+    Sie verbindet "survey_votings" mit den ausgewählten Antworten. 
+    count(survey_voting_answer) >= count(survey_voting)  für eine Umfrage */
     $sql = "SELECT COUNT(*) AS voteSessionCount FROM survey_voting AS sv WHERE sv.survey_id = ".$survey['id'];
     $voteSessionCountResult = mysqli_query($mysqli, $sql);
     $voteSessionCount = mysqli_fetch_assoc($voteSessionCountResult)['voteSessionCount'];

@@ -110,6 +110,10 @@ if (!isset($_GET['id']) || empty($_GET['id'])) {
             </thead>
             <tbody>
         <?php
+        /* Hole alle Antwortmöglichkeiten für diese Umfrage und liste sie in einer Tabelle auf.
+        Die Kreuztabelle "survey_answer_option" beinhaltet alle Umfragen und deren Verknüpfungen zu Antwortmöglichkeiten.
+        Besorgt man sich also alle Zeilen mit der passenden survey_id, dann muss man nurnoch die "answer" Tabelle
+        dazu "joinen", um an den jeweiligen titel, id und Beschreibung der Antwort zu kommen*/
          $sql = "SELECT a.id, a.title, a.description_text, sao.id AS sao_id FROM survey_answer_option AS sao LEFT JOIN answer AS a ON sao.answer_id = a.id WHERE sao.survey_id =".$survey['id'];
          $answerResult = mysqli_query($mysqli, $sql);
          while ($answer = mysqli_fetch_assoc($answerResult)):?>

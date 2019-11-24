@@ -19,6 +19,8 @@ if (isset($_POST['answer_id']) && !empty($_POST['answer_id'])
     es als Ganzzahl geparsed werden soll. Dadurch können keine schädlich SQL Statements
     ausgeführt werden */
     $stmt->bind_param("ssi", $_POST['new_title'], $_POST['new_description'], $_POST['answer_id']);
+    /* Beim Updaten muss die passende Zeile bearbeitet worden sein, sonst
+    waren die neuen Werte genauso wie die alten Werte oder die ID wurde nicht gefunden */
     if(!$stmt->execute() || $stmt->affected_rows === 0){
         echo "<span class='fail-text'>Beim Updaten der Antwortmöglichkeit ist ein Fehler passiert</span>";
     }else{

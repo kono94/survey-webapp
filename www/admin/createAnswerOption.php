@@ -13,7 +13,6 @@ if (isset($_POST['survey_id']) && !empty($_POST['survey_id'])){
         echo "<span class='fail-text'>Fehler: Beschreibung nicht ausgefüllt!</span>";
         exit;
     }
-
     if(!isset($_POST['answer_title']) || empty($_POST['answer_title'])){
         echo "<span class='fail-text'>Fehler: Titel nicht ausgefüllt!</span>";
         exit;
@@ -59,14 +58,15 @@ if (isset($_POST['survey_id']) && !empty($_POST['survey_id'])){
         <label for="survey-id">Umfrage:</label>
         <select id="survey-id" name="survey_id">
             <?php
-            /* Erzeuge eine drop-down Liste aller Kategorien. Hierbei ist die ID der Kategorie
-            das ausschlaggebende "value", welches durch die Form übersendet wird */
+            /* Erzeuge eine drop-down Liste aller Umfragen. Hierbei ist die ID der Umfrage
+            das ausschlaggebende "value", welches durch die Form übersendet wird. Der Titel
+            der Umfrage wird in der Liste angezeigt */
             $sql = "SELECT id, title FROM survey";
             $res = mysqli_query($mysqli, $sql);
             while($survey = mysqli_fetch_assoc($res)){
-                $selected = "";
                 /* Wenn eine Umfragen-ID gegeben ist, dann schauen, ob diese Umfrage in
                 der Liste enthalten ist. Wenn ja, dann wird diese als default ausgewählt. */
+                $selected = "";
                 if(isset($_GET['id']) && !empty($_GET['id']) && $survey['id'] == $_GET['id']){
                     $selected = "selected";
                 }

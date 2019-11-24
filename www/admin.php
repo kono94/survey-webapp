@@ -41,6 +41,7 @@ grün, wenn sie noch aktiv ist */
 $currentDate = date('Y-m-d', time());
 
 while ($survey = mysqli_fetch_assoc($res)):
+    /* Hier wird geschaut, ob die Umfrage noch aktiv ist.*/
     $isActive = $survey['start_date'] < $currentDate && $survey['end_date'] > $currentDate;?> 
 
     <tr style="background-color:<?php echo $isActive ? 'rgba(0, 255, 0, 0.2)' : 'rgba(255, 0, 0, 0.2)'?>">
