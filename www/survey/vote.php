@@ -7,44 +7,104 @@ require "../includes/dbConnection.inc.php";
 /* Wenn dieser POST-Parameter gesetzt ist, dann wurde abgestimmt und das Formular übermittelt.
 Es wird jetzt also versucht, die Bewertungen zu speichern */
 if (isset($_POST['survey_id'])) {
-    /* Es muss mindestens eine Antwort gewählt worden sein. > 1, da "survey_id" auch schon
-    ein Key in POST-Data ist */
-    if (sizeof($_POST) < 1) {
-        echo "You must select at least one answer";
+    /* Es muss mindestens eine Antwort gewählt worden sein. "> 2", da "survey_id" und "single_select" auch schon
+     Keys in POST-Data sind */
+    if (sizeof($_POST) < 2) {
+        echo "<span class='fail-text'>You must select at least one answer</span>";
         exit;
     }
 
-    /* Die Fragen mit ihren jeweiligen Antworten wurden in einer Map gespeichert.
-    questionID -> question_answer_option_id 
-    Der Befehl "array_keys" wandelt alle Keys dieser Map in ein Array um, sodass
-    man ein Array mit allen questionIDs bekommt */ 
-    foreach(array_keys($_POST) as $questionID){
-        /* Wie bereit oben angemerkt, muss man aufpassen, da "survey_id" auch ein Key in
-         POST-Data ist. Diesen Fall überspringen wir einfach mit "continue" und die
-         Schleife wird fortgesetzt */
-        if($questionID === 'survey_id'){
-            continue;
+    /* 
+    Wenn die Umfrage single select ist, dann versteckt sich die survey_answer_option_id
+    hinter dem Key der eigentlichen survey_id.
+    Bei multi select werden die survey_answer_option_id als Key geschickt mit dem value 'on', der 
+    default-Wert bei Checkboxen.
+    Um zu wissen, um welche Variante es sich handelt, wird ein zusätzlicher
+    hidden input versendet "single_select", der angibt, ob es sich um eine single select oder
+    multi select Umfrage handelt.
+    
+    $_POST-Data:
+    single select:
+        {
+            "survey_id": 4,
+            "single_select": 1,
+            "4": "429"             // <<survey_id>> : <<survey_answer_option_id>>>
         }
-        
-        /* Speichere eine Antwort zu einer Frage in die Datenbank.
-        Question_answer_option_id ist dabei die ID der Kreuztabelle, die
-        Fragen mit Antwortmöglichkeiten verbindet. Diese ID reicht also in Verbindung
-        mit der survey_id, um später zurückverfolgen zu können, um welche Frage und Antwort es sich
-        bei dieser Stimme gehandelt hat*/ 
-        $sql = " INSERT INTO survey_result 
-        (survey_id, question_answer_option_id)
-        VALUES
-        (?, ?)";
-        $stmt = $mysqli->prepare($sql);
-        /* Binde zwei Integer-Werte an die beiden Fragezeichen in der Query */
-        $stmt->bind_param("ii", $_POST['survey_id'],  $_POST[$questionID]);
-        if (!$stmt->execute()) {
-            /* Dies kann man auskommentieren, um eine detaillierte Fehlermeldung zu bekommen.
-            Sollte man aber nur während der Entwicklung machen */
-            # echo "Execute failed: (" . $stmt->errno . ") " . $stmt->error;
-            echo "Fehler beim Speichern der Antworten";
-            exit;
+    multi select:
+        {
+            "survey_id": 4,
+            "single_select": 0,
+            "429": "on",
+            "430": "on",
         }
+        */
+
+
+    
+    if(!isset($_POST['single_select'])){
+        echo "Fehlerhafter Input; 'single_select' fehlt";
+        exit;
+    }
+
+    $sql = " INSERT INTO survey_voting 
+            (survey_id)
+            VALUES
+            (?)";
+    $stmt = $mysqli->prepare($sql);
+    $stmt->bind_param("i", $_POST['survey_id']);
+    if (!$stmt->execute()) {
+        echo "Fehler beim Speichern des Votings";
+        exit;
+    }
+
+    $votingID = $stmt->insert_id;
+    $error = false;
+    $atLeastOneAnswer = false;
+    if($_POST['single_select'] == 1){
+        if(isset($_POST[$_POST['survey_id']])){
+            $surveyAnswerOptionID = $_POST[$_POST['survey_id']];
+            $sql = " INSERT INTO survey_voting_answer
+            (survey_voting_id, survey_answer_option_id)
+            VALUES
+            (?,?)";
+            $stmt = $mysqli->prepare($sql);
+            $stmt->bind_param("ii", $votingID, $surveyAnswerOptionID);
+            if (!$stmt->execute()) {
+                $error = true;
+            }else{
+                $atLeastOneAnswer = true;
+            }
+        }else{
+            $error = true;
+        }
+    }else{
+        foreach(array_keys($_POST) as $surveyAnswerOptionID){
+            /* Wie bereit oben angemerkt, muss man aufpassen, da "survey_id" und "single_selecg" auch Keys in
+             POST-Data ist. Diese Fälle überspringen wir einfach mit "continue" und die
+             Schleife wird fortgesetzt */
+            if($surveyAnswerOptionID === 'survey_id' || $surveyAnswerOptionID === 'single_select'){
+                continue;
+            }
+
+            $sql = " INSERT INTO survey_voting_answer
+            (survey_voting_id, survey_answer_option_id)
+            VALUES
+            (?,?)";
+            $stmt = $mysqli->prepare($sql);
+            $stmt->bind_param("ii", $votingID, $surveyAnswerOptionID);
+            if (!$stmt->execute()) {
+                $error = true;
+            }else{
+                $atLeastOneAnswer = true;
+            }
+        }
+    }
+    
+    if($error || !$atLeastOneAnswer){
+        $sql = "DELETE FROM survey_voting WHERE id".$votingID;
+        $res = mysqli_query($mysqli, $sql);
+        echo "Fehler beim Speichern einer Antwort, lösche komplette Abstimmung wieder";
+        exit;
     }
 
     /* Wird eine Abstimmung erfolgreich gespeichert, so wird man weitergeleitet auf
@@ -89,37 +149,31 @@ createHeader("Umfrage-Tool");
     <?= $survey['description_text'] ?> 
 </p>
 <form action='vote.php' method='POST'>
-    <?php 
-     /* Hole alle Fragen, die zu dieser Umfrage gehören mit dem jeweiligen question_typ,
-     um zwischen vorgebenen Antwortmöglichkeiten (radio-button-fragen) und Freitexteingaben
-     der Benutzer zu unterscheiden */
-    $sql = "SELECT q.id, q.title, qt.name AS question_type_name FROM survey_question AS sq LEFT JOIN question AS q ON sq.id = q.id INNER JOIN question_type AS qt ON q.question_type_id = qt.id WHERE sq.survey_id = ".$survey['id'];
-    $res = mysqli_query($mysqli, $sql);
-    /* Index um die Fragen zu Nummerieren */
-    $index = 0;
-    while ($question = mysqli_fetch_assoc($res)): $index++;?>
-        <div style="border-top: 10px solid <?= $survey['category_color']?>;
-                    padding-top: 20px;">
-            <h5><?= $index.". ".$question['title'] ?></h5>
-            <div class="question">
-                <?php 
-                /* Hole alle Antwortmöglichkeiten zu dieser Frage. Über die Kreuztabelle
-                 question_answer_option, werden Fragen mit Antwortmöglichkeiten verbunden.
-                 Man muss sich also nur alle Einträge dieser Tabelle holen, wo die question_id mit ID der 
-                 Frage gleich ist und alle Antworten dazu holen (LEFT JOIN), um ihren "title" zu kommen */
-                $sql = "SELECT a.id, a.title, qao.id AS qao_id FROM question_answer_option AS qao LEFT JOIN answer AS a ON qao.answer_id = a.id WHERE qao.question_id =".$question['id'];
-                $answerResult = mysqli_query($mysqli, $sql);
-                while ($answer = mysqli_fetch_assoc($answerResult)):?>
-                    <div>
-                        <input id="<?=$answer['qao_id']?>" type='radio' name='<?= $question['id'] ?>' value='<?= $answer['qao_id'] ?>'>
-                        <label for="<?=$answer['qao_id']?>"><?= $answer['title'] ?></label>
-                    </div>
-                <?php endwhile; ?>
-            </div>
+    <div style="border-top: 10px solid <?= $survey['category_color']?>;
+                padding-top: 20px;">
+        <div class="question">
+            <?php 
+            /* Hole alle Antwortmöglichkeiten zu dieser Frage. Über die Kreuztabelle
+                survey_answer_option, werden Umfragen mit Antwortmöglichkeiten verbunden.
+                Man muss sich also nur alle Einträge dieser Tabelle holen, wo die survey_id mit der ID der 
+                Umfrage gleich ist und alle Antworten dazu holen (LEFT JOIN), um ihren "title" zu bekommen */
+            $sql = "SELECT a.id, a.title, a.description_text, sao.id AS sao_id FROM survey_answer_option AS sao LEFT JOIN answer AS a ON sao.answer_id = a.id WHERE sao.survey_id =".$survey['id'];
+            $answerResult = mysqli_query($mysqli, $sql);
+            while ($answer = mysqli_fetch_assoc($answerResult)):?>
+                <div>
+                    <?php if($survey['single_select'] === 1): ?>
+                        <input type='radio' id="<?=$answer['sao_id']?>" name='<?= $survey['id'] ?>' value='<?= $answer['sao_id'] ?>'>
+                    <?php else:?>
+                        <input type='checkbox' id="<?=$answer['sao_id']?>" name='<?= $answer['sao_id'] ?>'>
+                    <?php endif; ?>
+                    <label for="<?=$answer['sao_id']?>"><?= $answer['title'] ?></label>
+                </div>
+            <?php endwhile; ?>
         </div>
-    <?php endwhile; ?>
+    </div>
 
     <input type='hidden' name='survey_id' value='<?= $survey['id'] ?>' />
+    <input type='hidden' name='single_select' value='<?= $survey['single_select'] ?>' />
     <input type='submit' class="btn btn-primary" value='Absenden' style="background-color: <?= $survey['category_color']?>; border-color: <?= $survey['category_color']?>">
 </form>
 </div>

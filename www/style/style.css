@@ -15,8 +15,18 @@
     margin-left:45%;
     text-align: left;
 }
-.survey-form input, label, textarea{
+.survey-form > input, .survey-form > label, .survey-form >textarea{
     display: block;
+}
+.create-form > input, .create-form > label {
+    display:block;
+    margin-top: 10px;
+}
+
+.create-form{
+    width:500px;
+    margin:0 auto;
+    margin-top:80px;
 }
 .survey-form label{
     margin-top: 20px;

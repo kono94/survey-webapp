@@ -39,8 +39,11 @@ zweiten den derzeitigen Unix-Timestamp mittels time()-Methode.
 Wird benutzt um die Hintergrundsfarbe der Zeilen zu ändern. Rot, wenn die Umfrage bereits zu ende ist,
 grün, wenn sie noch aktiv ist */
 $currentDate = date('Y-m-d', time());
-while ($survey = mysqli_fetch_assoc($res)):?> 
-    <tr style="background-color:<?php echo $survey['end_date'] > $currentDate ? 'rgba(0, 255, 0, 0.2)' : 'rgba(255, 0, 0, 0.2)'?>">
+
+while ($survey = mysqli_fetch_assoc($res)):
+    $isActive = $survey['start_date'] < $currentDate && $survey['end_date'] > $currentDate;?> 
+
+    <tr style="background-color:<?php echo $isActive ? 'rgba(0, 255, 0, 0.2)' : 'rgba(255, 0, 0, 0.2)'?>">
         <td><?=$survey['id']?></td>
         <td scope="row"><?=$survey['title']?></td>
         <td><?=$survey['description_text']?></td>
@@ -51,7 +54,7 @@ while ($survey = mysqli_fetch_assoc($res)):?>
         <td style="text-align:center;"><a href='/admin/editSurvey.php?id=<?=$survey['id']?>'><i class="fas fa-pen" style="font-size:25px"></i></a></td>
         <td style="text-align:center;"><a href='/admin/clearVotes.php?id=<?=$survey['id']?>'><i class="fas fa-broom" style="font-size:25px"></i></a></td>
         <td style="text-align:center;"><a href='/admin/deleteSurvey.php?id=<?=$survey['id']?>'><i class="fas fa-trash-alt" style="font-size:25px"></i></a></td>
-        <td><?php echo $survey['end_date'] > $currentDate ? 'aktiv' : 'inaktiv'?></td>
+        <td><?php echo $isActive ? 'aktiv' : 'inaktiv'?></td>
     </tr>
 <?php 
 endwhile;

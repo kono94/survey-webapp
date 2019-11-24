@@ -5,7 +5,7 @@ require "../includes/footer.inc.php";
 /* Ab hier kann man $mysqli benutzen um mit der Datenbank zu interagieren */
 require "../includes/dbConnection.inc.php";
 
-createHeader("Umfrage löschen");
+createHeader("Kategorie bearbeiten");
 
 /* Formular wurde ausgefüllt und abgeschickt */
 if (isset($_POST['category_id']) && !empty($_POST['category_id']) 
