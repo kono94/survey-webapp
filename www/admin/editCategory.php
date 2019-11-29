@@ -52,9 +52,12 @@ if (!isset($_GET['id']) || empty($_GET['id'])) {
         deswegen reicht es einmal "fetch_assoc()" aufzurufen */ 
         $category = $res->fetch_assoc();
         ?>
-        <form style="text-align:center" action='editCategory.php' method='POST'>
-            <input type="text" name='new_name' value='<?=$category['name']?>' />
-            <input type="color" name='new_color' value="<?=$category['color']?>">
+        <form class='create-form' action='editCategory.php' method='POST'>
+            <label for="new-name">Name:</label>
+            <input type="text" id='new-name' name='new_name' value='<?=$category['name']?>' />
+
+            <label for="new-color">Name:</label>
+            <input type="color" id='new-color' name='new_color' value="<?=$category['color']?>">
 
             <input type='hidden' name='category_id' value='<?= $category['id'] ?>' />
             <input type='submit' class="btn btn-primary" value='Absenden'>

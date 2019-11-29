@@ -6,8 +6,31 @@ require "../includes/footer.inc.php";
 require "../includes/dbConnection.inc.php";
 
 createHeader("Most voted");
-/* Hole alle Umfragen sortiert nach der Anzahl der Votes absteigend */
-$sql = "SELECT survey.*, category.name AS category_name, COUNT(sva.id) AS totalVotes FROM survey INNER JOIN category ON survey.category_id = category.id LEFT JOIN survey_voting AS sv ON survey.id = sv.survey_id  LEFT JOIN survey_voting_answer AS sva ON sva.survey_voting_id = sv.id GROUP BY survey.id ORDER BY count(sva.id) DESC";
+/* Hole alle Umfragen sortiert nach der Anzahl der Votes absteigend 
+  Dies ist die "komplizierteste" Query in diesem Projekt. Es werden alle Umfragen (FROM survey) geholt
+  mit ihren jeweiligen Kategorien (LEFT JOIN category), dies wird bereits öfters in diesem Projekt gemacht.
+  Nun sollen auch noch die Gesamtanzahl der Votes für jede Umfrage besorgt werden. Dafür müssen
+  wir erst die Tabelle "survey_voting" hinzujoinen und dann noch die Tabelle "survey_voting_answer".
+  Eine Zeile in dieser Tabelle (survey_voting_answer) steht für eine gewählte und abgebene Antwortmöglichkeit.
+  Somit bekäme man zu diesem Zeitpunkt alle abgebenen Antwortmöglichkeiten für alle Umfragen. Um jetzt die Anzahl
+  für jede einzelne Umfrage zu bekommen, gruppiert man (GROUP BY) das Ergebnis anhand der "survey.id". 
+  Wenn man nun eine Aggregationsfunktion von MySQL benutzt, in diesem Fall "COUNT()", dann bezieht sich
+  diese immer auf die einzelnen Gruppe!
+  Durch vieles rumprobieren sind wir darauf gekommen, dass man der Funktion COUNT() als Parameter auch die "sva.id"
+  übergeben kann, statt COUNT(*), damit Umfragen, für die noch keine Antworten gegeben worden sind nicht als "1" gezählt werden.
+  Denn man selected ja alle Umfragen, wenn keine Antwortmöglichkeiten gegeben worden sind, dann würde trotzdem eine Zeile pro Umfrage
+  existieren, aber keine "sva.id" wäre gegeben. Man will aber nicht die Umfragen zählen, sondern wirklich nur
+  die Antwortmöglichkeiten pro Umfrage, deswegen "COUNT(sva.id)".
+  Am Ende der Query wird noch nach der Anzahl der Antworten sortiert, absteigend (DESC).
+    */
+$sql = "SELECT survey.*, category.name AS category_name, COUNT(sva.id) AS totalVotes 
+  FROM survey
+  LEFT JOIN category ON survey.category_id = category.id 
+  LEFT JOIN survey_voting AS sv ON survey.id = sv.survey_id 
+  LEFT JOIN survey_voting_answer AS sva ON sva.survey_voting_id = sv.id 
+  GROUP BY survey.id 
+  ORDER BY count(sva.id) DESC";
+
 $res = mysqli_query($mysqli, $sql);
 ?>
 <div class="button-group">
@@ -55,7 +78,7 @@ while ($survey = mysqli_fetch_assoc($res)):
         <td><?=$survey['title']?></td>
         <td><?=$survey['totalVotes']?></td>
         <td><?= 
-        /* Maximal 3 Nachkommastellen */
+        /* Maximal 3 Nachkommastellen wird durch die php-Funktion "number_format(ZAHL, NACHKOMMASTELLEN)" erreicht */
         number_format($survey['totalVotes'] / $voteSessionCount, 3)?></td>
         <td scope="row"><?=$survey['category_name']?></td>
         <td style="text-align:center;"><a href='/survey/result.php?id=<?=$survey['id']?>'><i class="fas fa-clipboard" style="font-size:25px"></i></a></td>

@@ -4,7 +4,6 @@
     $dbDatabase = "m5132_44";
     $dbUser = "m5132-44";
     $dbPassword = "hs2CXBK7P";
-
     */
 
     $dbHost = "mysql";

@@ -52,10 +52,13 @@ if (!isset($_GET['id']) || empty($_GET['id'])) {
         deswegen reicht es einmal "fetch_assoc()" aufzurufen */ 
         $answer = $res->fetch_assoc();
         ?>
-        <form style="text-align:center" action='editAnswerOption.php' method='POST'>
+        <form class="create-form" action='editAnswerOption.php' method='POST'>
+            <label for="new-name">Name:</label>
             <input type="text" name='new_title' value='<?=$answer['title']?>' />
-            <input type="text" name='new_description' value="<?=$answer['description']?>">
-
+            
+            <label for="new_description">Bechreibung:</label>
+            <textarea id="description" name="new_description" rows="4" cols="50"><?=$answer['description']?></textarea>
+            
             <input type='hidden' name='answer_id' value='<?= $answer['id'] ?>' />
             <input type='submit' class="btn btn-primary" value='Speichern'>
         </form>

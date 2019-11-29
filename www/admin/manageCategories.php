@@ -8,8 +8,13 @@ require "../includes/dbConnection.inc.php";
 createHeader("Umfrage-Tool");
 
 /* Hole alle Kategorien und die Anzahl, wie oft jede einzelne einer
-Umfrage zugeordnet ist, um sie in einer Tabelle darzustellen. */
-$sql = "SELECT category.id, category.name, category.color, count(survey.id) AS anzahl FROM category
+Umfrage zugeordnet ist, um sie in einer Tabelle darzustellen.
+Es ist wichtig "survey.id" als Parameter für COUNT() zu übergeben, da man die Anzahl
+der Umfragen pro Kategorie haben möchte. Da man sich primär alle Kategorien holt, würde COUNT(*) immer
+mindestens 1 sein, da mindestens eine Zeile pro Kategorie erzeugt wird.
+Siehe Datei "mostVotedSurvey.php" für eine Erklärung einer ähnlichen Query. */
+$sql = "SELECT category.id, category.name, category.color, count(survey.id) AS anzahl 
+       FROM category
        LEFT JOIN survey
        ON category.id = survey.category_id
        GROUP BY category.id";
@@ -31,7 +36,8 @@ $res = mysqli_query($mysqli, $sql);
   </thead>
   <tbody>
 <?php
-/* Erstelle eine Tabellenzeile für jede Kategorie mit jeweiligen Link zur Bearbeitung */
+/* Erstelle eine Tabellenzeile für jede Kategorie mit jeweiligen Link zur Bearbeitung
+und Löschen, aber nur wenn keine Umfrage mit dieser Kategorie existiert. */
 while ($category = mysqli_fetch_assoc($res)): ?>
     <tr>
         <td scope="row"><?=$category['id']?></td>

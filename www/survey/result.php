@@ -57,7 +57,7 @@ $survey = $res->fetch_assoc();
     <div>
        
         <div class="question" style="margin-left: 20%;">
-        <h5>Gesamte Stimmen: <?= $totalVotes?> in <?= $voteSessionCount?> Sessions</h5>
+        <span style="display:block;margin-bottom:50px"><b style="font-size:25px"><?= $totalVotes?></b> Gesamtstimmen in <b style="font-size:25px"><?= $voteSessionCount?> </b>Sessions gesammelt:</span>
             <?php 
             /* Hole alle Antwortmöglichkeiten, die zu der Umfrage gehören */
             $sql = "SELECT a.id, a.title, a.description_text, sao.id AS sao_id FROM survey_answer_option AS sao LEFT JOIN answer AS a ON sao.answer_id = a.id WHERE sao.survey_id =".$survey['id'];
